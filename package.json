@@ -1,0 +1,49 @@
+{
+  "name": "airtable-fullstack-mcp",
+  "version": "1.0.0",
+  "description": "Full-Stack Airtable MCP Server: Unified REST/Metadata API and Browser CDP Interface Designer Automation",
+  "main": "dist/index.js",
+  "bin": {
+    "airtable-fullstack-mcp": "./dist/index.js"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "airtable",
+    "mcp",
+    "model-context-protocol",
+    "claude",
+    "interface-designer",
+    "playwright",
+    "cdp",
+    "automation"
+  ],
+  "author": "Praroop Anand",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.1",
+    "dotenv": "^16.4.7",
+    "playwright-core": "^1.50.1",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.9",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist",
+    "skills",
+    "README.md",
+    "LICENSE"
+  ]
+}
