@@ -196,7 +196,8 @@ Launching this open-source tool establishes you as the premier authority in AI-d
 ## 7. Immediate Next Actions
 
 1. [x] **Core Mechanics Proven**: All DOM selectors, CDP scripts, and Metadata API interactions verified during the Vape Runners build.
-2. [ ] **Initialize Local Package**: Run `npm init` and initialize TypeScript structure in a new directory `airtable-designer-mcp`.
-3. [ ] **Consolidate Tools**: Move our tested Playwright scripts into clean, reusable MCP tool functions.
-4. [ ] **Test with Claude Desktop**: Wire up stdio transport and run local prompts.
-5. [ ] **Record Demo & Publish**: Create the launch GIF and deploy to npm.
+2. [x] **Initialize Package & GitHub**: Initialized `airtable-fullstack-mcp` with TypeScript, Playwright CDP, Zod validation, and pushed to `Praroop1435/airtable-fullstack-mcp`.
+3. [x] **Consolidate Tools**: Ported all 10 dual-engine tools (REST/Metadata schema + Chrome CDP Interface Designer).
+4. [x] **Publish to npm Registry**: Successfully deployed `airtable-fullstack-mcp@1.0.0` live to npm (`npm i -g airtable-fullstack-mcp` or `npx airtable-fullstack-mcp`).
+5. [ ] **Test with Claude Desktop / Live Validation**: Wire up `npx -y airtable-fullstack-mcp` into `claude_desktop_config.json` and run live validation.
+6. [ ] **Record Demo & Launch**: Create the 60s launch GIF/video and submit to MCP registries (Smithery, Glama, PulseMCP).
