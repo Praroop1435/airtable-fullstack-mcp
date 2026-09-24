@@ -4,7 +4,7 @@
   "description": "Full-Stack Airtable MCP Server: Unified REST/Metadata API and Browser CDP Interface Designer Automation",
   "main": "dist/index.js",
   "bin": {
-    "airtable-fullstack-mcp": "./dist/index.js"
+    "airtable-fullstack-mcp": "dist/index.js"
   },
   "type": "module",
   "scripts": {
