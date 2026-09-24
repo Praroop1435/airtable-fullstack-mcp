@@ -1,0 +1,23 @@
+startCommand:
+  type: stdio
+  commandFunction: |-
+    (config) => ({
+      command: 'npx',
+      args: ['-y', 'airtable-fullstack-mcp'],
+      env: {
+        AIRTABLE_API_KEY: config.airtableApiKey,
+        AIRTABLE_CDP_PORT: config.airtableCdpPort ? String(config.airtableCdpPort) : '9223'
+      }
+    })
+configSchema:
+  type: object
+  required:
+    - airtableApiKey
+  properties:
+    airtableApiKey:
+      type: string
+      description: "Airtable Personal Access Token (pat...) with data.records and schema.bases scopes"
+    airtableCdpPort:
+      type: number
+      default: 9223
+      description: "Remote debugging port for Chrome DevTools Protocol (default 9223)"
