@@ -1,6 +1,8 @@
 # ⚡ Airtable Full-Stack MCP (`airtable-fullstack-mcp`)
 
 [![npm version](https://img.shields.io/npm/v/airtable-fullstack-mcp.svg?style=flat-square&color=blue)](https://www.npmjs.com/package/airtable-fullstack-mcp)
+[![Glama Score](https://glama.ai/mcp/servers/Praroop1435/airtable-fullstack-mcp/badges/score.svg)](https://glama.ai/mcp/servers/Praroop1435/airtable-fullstack-mcp)
+[![Smithery](https://img.shields.io/badge/Smithery-Listed-blueviolet.svg?style=flat-square)](https://smithery.ai/servers/anandpraroop/airtable-fullstack-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7+-blue.svg?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Standard-orange.svg?style=flat-square)](https://modelcontextprotocol.io/)
