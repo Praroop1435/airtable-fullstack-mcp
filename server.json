@@ -1,0 +1,42 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schema/server.json",
+  "name": "airtable-fullstack-mcp",
+  "title": "Airtable Full-Stack MCP Server",
+  "description": "Dual-engine Airtable MCP server combining REST/Metadata API schema, record CRUD, automations & webhooks with Chrome CDP browser automation for Interface Designer.",
+  "version": "1.1.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Praroop1435/airtable-fullstack-mcp"
+  },
+  "homepage": "https://github.com/Praroop1435/airtable-fullstack-mcp#readme",
+  "bugs": "https://github.com/Praroop1435/airtable-fullstack-mcp/issues",
+  "transport": {
+    "type": "stdio"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "airtable-fullstack-mcp",
+      "version": "1.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": {
+        "AIRTABLE_API_KEY": {
+          "description": "Airtable Personal Access Token (starts with pat...)",
+          "required": true
+        },
+        "AIRTABLE_BASE_ID": {
+          "description": "Airtable Base ID (starts with app...)",
+          "required": false
+        },
+        "AIRTABLE_CDP_PORT": {
+          "description": "Remote debugging port for Chrome DevTools Protocol (default 9223)",
+          "required": false,
+          "default": 9223
+        }
+      }
+    }
+  ]
+}
