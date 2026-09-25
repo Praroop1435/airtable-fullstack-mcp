@@ -9,7 +9,7 @@
 
 **The World's First Dual-Engine Model Context Protocol (MCP) Server for Airtable.**
 
-Programmatically orchestrate both **Airtable's Schema/Data APIs** *and* **Airtable's Interface Designer** (Dashboards, Kanbans, Field Locks, and Instant Publishing) through natural language in Claude Desktop, Cursor, or Antigravity.
+Programmatically orchestrate **Airtable's Schema/Data APIs**, **Real-Time Webhooks**, **In-Base Automations Scripting**, and **Airtable's Interface Designer** (Dashboards, Kanbans, Field Locks, and Instant Publishing) through natural language in Claude Desktop, Cursor, or Antigravity.
 
 ---
 
@@ -17,17 +17,18 @@ Programmatically orchestrate both **Airtable's Schema/Data APIs** *and* **Airtab
 
 * **Standard Airtable MCPs fall short**: Existing open-source Airtable tools only support simple record CRUD (`list_records`, `create_record`).
 * **Zero Public API for Interfaces**: Airtable provides **no public API** to create or configure **Interface Designer** pages, dashboards, Kanban stacks, or column inline edit permissions.
-* **The Solution**: `airtable-fullstack-mcp` bridges this gap via a **Dual-Engine architecture**:
-  1. **Engine 1 (Official REST & Metadata APIs)**: Creates bases, tables, custom fields, links, and batch upserts records with 5 req/sec rate limit handling.
+* **Missing Integration & Automation Bridge**: Connecting webhooks (Tally, Fillout, Stripe, PayPal) and writing in-base automation scripts usually requires tedious manual work.
+* **The Solution**: `airtable-fullstack-mcp` bridges this gap via a **Unified Dual-Engine architecture**:
+  1. **Engine 1 (Official REST & Metadata APIs + Webhooks + Automations)**: Creates bases, tables, custom fields, links, batch upserts records, manages real-time webhooks, generates in-base automation scripts, and handles full record CRUD.
   2. **Engine 2 (Chrome CDP Browser Automation)**: Connects to your running Chrome session via Chrome DevTools Protocol to build live Interface pages, group Kanbans by stages, lock sensitive audit columns, and publish changes.
 
 ```mermaid
 flowchart TD
-    Prompt["User Prompt: 'Build a merchant onboarding portal with Kanban pipeline and locked billing'"] --> Agent["Claude / Cursor / AI Agent"]
+    Prompt["User Prompt: 'Build a merchant onboarding portal with Kanban pipeline, locked billing, and Stripe webhook'"] --> Agent["Claude / Cursor / AI Agent"]
     Agent --> MCP["airtable-fullstack-mcp"]
     
     subgraph DualEngine["Dual-Engine Execution"]
-        MCP -->|REST & Metadata API| E1["Engine 1: Schema & Data\n• Base & Tables Creation\n• 10-batch Upsert\n• Formula Filters"]
+        MCP -->|REST, Metadata & Webhooks| E1["Engine 1: Schema, Data & Automations\n• Base & Tables Creation\n• 10-batch Upsert & Record CRUD\n• Real-Time Webhooks API\n• In-Base Scripting Generator"]
         MCP -->|Headless Chrome CDP| E2["Engine 2: Interface Designer\n• KPI Dashboards & Charts\n• Kanban Stacking by Stage\n• Field Locks & Permissions\n• Interface Publishing"]
     end
     

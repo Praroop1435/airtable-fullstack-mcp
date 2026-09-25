@@ -1,8 +1,8 @@
 {
   "name": "airtable-fullstack-mcp",
   "title": "Airtable Full-Stack MCP Server",
-  "description": "Dual-engine Airtable MCP server combining REST/Metadata API schema, record CRUD, automations & webhooks with Chrome CDP browser automation for Interface Designer.",
-  "version": "1.1.0",
+  "description": "The world's first dual-engine Airtable MCP server: unified REST & Metadata APIs, real-time Webhooks, In-Base Automation Scripting, full Record CRUD, and Chrome CDP Interface Designer automation (Dashboards, Kanbans, Column Edit Locks, and Publishing).",
+  "version": "1.1.1",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -17,7 +17,7 @@
     {
       "registryType": "npm",
       "identifier": "airtable-fullstack-mcp",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "transport": {
         "type": "stdio"
       },

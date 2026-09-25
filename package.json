@@ -1,7 +1,7 @@
 {
   "name": "airtable-fullstack-mcp",
-  "version": "1.1.0",
-  "description": "Full-Stack Airtable MCP Server: Unified REST/Metadata API, Webhooks, In-Base Automations, and Browser CDP Interface Designer Automation",
+  "version": "1.1.1",
+  "description": "The world's first dual-engine Airtable MCP server: unified REST & Metadata APIs, real-time Webhooks, In-Base Automation Scripting, full Record CRUD, and Chrome CDP Interface Designer automation (Dashboards, Kanbans, Column Edit Locks, and Publishing).",
   "main": "dist/index.js",
   "bin": {
     "airtable-fullstack-mcp": "dist/index.js"

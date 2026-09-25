@@ -1,9 +1,9 @@
 ---
 name: airtable-builder
 description: >
-  Full-stack Airtable operations and interface design assistant. Uses the airtable-fullstack-mcp
-  dual-engine server to provision schemas & data via REST/Metadata APIs, and build live
-  dashboards, kanbans, field-permission locks, and published interfaces via Chrome CDP automation.
+  Full-stack Airtable operations, automations, and interface design assistant. Uses the airtable-fullstack-mcp
+  dual-engine server to provision schemas & data via REST/Metadata APIs, manage real-time webhooks, generate
+  in-base automation scripts, and build live dashboards, kanbans, field-permission locks, and published interfaces via Chrome CDP automation.
 ---
 
 # Airtable Full-Stack Builder & Architect Skill

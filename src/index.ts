@@ -25,9 +25,9 @@ import { registerPermissionTools } from './tools/permission_tools.js';
 async function main() {
   const server = new McpServer({
     name: 'airtable-fullstack-mcp',
-    version: '1.1.0',
+    version: '1.1.1',
     description:
-      'Dual-engine Airtable MCP server combining REST/Metadata API schema, record CRUD, automations & webhooks with Chrome CDP browser automation for Interface Designer.',
+      "The world's first dual-engine Airtable MCP server: unified REST & Metadata APIs, real-time Webhooks, In-Base Automation Scripting, full Record CRUD, and Chrome CDP Interface Designer automation (Dashboards, Kanbans, Column Edit Locks, and Publishing).",
   });
 
   const apiClient = new AirtableApiClient();
