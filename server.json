@@ -1,5 +1,4 @@
 {
-  "$schema": "https://static.modelcontextprotocol.io/schema/server.json",
   "name": "airtable-fullstack-mcp",
   "title": "Airtable Full-Stack MCP Server",
   "description": "Dual-engine Airtable MCP server combining REST/Metadata API schema, record CRUD, automations & webhooks with Chrome CDP browser automation for Interface Designer.",
