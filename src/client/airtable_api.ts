@@ -10,6 +10,7 @@
 import type {
   AirtableTableConfig,
   AirtableQueryRecordsArgs,
+  AirtableFieldConfig,
 } from '../types/index.js';
 
 export interface AirtableApiConfig {
@@ -263,4 +264,317 @@ export class AirtableApiClient {
       records: finalRecords,
     };
   }
+
+  /**
+   * Retrieve a single record by ID
+   */
+  async getRecord(
+    baseId: string,
+    tableNameOrId: string,
+    recordId: string
+  ): Promise<any> {
+    const encodedTable = encodeURIComponent(tableNameOrId);
+    const url = `${this.baseUrl}/${baseId}/${encodedTable}/${recordId}`;
+    const response = await this.fetchWithRetry(url, {
+      method: 'GET',
+      headers: this.getHeaders(),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Failed to get record ${recordId} (${response.status}): ${errorText}`
+      );
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * Update a single record (PATCH)
+   */
+  async updateRecord(
+    baseId: string,
+    tableNameOrId: string,
+    recordId: string,
+    fields: Record<string, unknown>,
+    typecast = true
+  ): Promise<any> {
+    const encodedTable = encodeURIComponent(tableNameOrId);
+    const url = `${this.baseUrl}/${baseId}/${encodedTable}/${recordId}`;
+    const payload = {
+      fields,
+      typecast,
+    };
+
+    const response = await this.fetchWithRetry(url, {
+      method: 'PATCH',
+      headers: this.getHeaders(),
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Failed to update record ${recordId} (${response.status}): ${errorText}`
+      );
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * Delete a single record
+   */
+  async deleteRecord(
+    baseId: string,
+    tableNameOrId: string,
+    recordId: string
+  ): Promise<{ id: string; deleted: boolean }> {
+    const encodedTable = encodeURIComponent(tableNameOrId);
+    const url = `${this.baseUrl}/${baseId}/${encodedTable}/${recordId}`;
+    const response = await this.fetchWithRetry(url, {
+      method: 'DELETE',
+      headers: this.getHeaders(),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Failed to delete record ${recordId} (${response.status}): ${errorText}`
+      );
+    }
+
+    return (await response.json()) as { id: string; deleted: boolean };
+  }
+
+  /**
+   * Batch delete records (chunks of 10)
+   */
+  async batchDeleteRecords(
+    baseId: string,
+    tableNameOrId: string,
+    recordIds: string[]
+  ): Promise<{ deletedCount: number; records: Array<{ id: string; deleted: boolean }> }> {
+    const encodedTable = encodeURIComponent(tableNameOrId);
+    const deletedResults: Array<{ id: string; deleted: boolean }> = [];
+    const chunkSize = 10;
+
+    for (let i = 0; i < recordIds.length; i += chunkSize) {
+      const chunk = recordIds.slice(i, i + chunkSize);
+      const queryParams = new URLSearchParams();
+      chunk.forEach((id) => queryParams.append('records[]', id));
+
+      const url = `${this.baseUrl}/${baseId}/${encodedTable}?${queryParams.toString()}`;
+      const response = await this.fetchWithRetry(url, {
+        method: 'DELETE',
+        headers: this.getHeaders(),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `Batch delete failed at records ${i}-${i + chunk.length} (${response.status}): ${errorText}`
+        );
+      }
+
+      const data = (await response.json()) as any;
+      if (Array.isArray(data.records)) {
+        deletedResults.push(...data.records);
+      }
+
+      if (i + chunkSize < recordIds.length) {
+        await this.sleep(210);
+      }
+    }
+
+    return {
+      deletedCount: deletedResults.length,
+      records: deletedResults,
+    };
+  }
+
+  /**
+   * Add a new field to an existing table via Metadata API
+   */
+  async createField(
+    baseId: string,
+    tableIdOrName: string,
+    fieldConfig: AirtableFieldConfig
+  ): Promise<any> {
+    const url = `${this.baseUrl}/meta/bases/${baseId}/tables/${encodeURIComponent(tableIdOrName)}/fields`;
+    const payload = {
+      name: fieldConfig.name,
+      type: fieldConfig.type,
+      description: fieldConfig.description,
+      options: fieldConfig.options,
+    };
+
+    const response = await this.fetchWithRetry(url, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Failed to create field '${fieldConfig.name}' in table '${tableIdOrName}' (${response.status}): ${errorText}`
+      );
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * Update an existing field's name or description via Metadata API
+   */
+  async updateField(
+    baseId: string,
+    tableIdOrName: string,
+    fieldId: string,
+    updateConfig: { name?: string; description?: string }
+  ): Promise<any> {
+    const url = `${this.baseUrl}/meta/bases/${baseId}/tables/${encodeURIComponent(tableIdOrName)}/fields/${fieldId}`;
+    const response = await this.fetchWithRetry(url, {
+      method: 'PATCH',
+      headers: this.getHeaders(),
+      body: JSON.stringify(updateConfig),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Failed to update field '${fieldId}' (${response.status}): ${errorText}`
+      );
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * Update a table's name or description via Metadata API
+   */
+  async updateTable(
+    baseId: string,
+    tableIdOrName: string,
+    updateConfig: { name?: string; description?: string }
+  ): Promise<any> {
+    const url = `${this.baseUrl}/meta/bases/${baseId}/tables/${encodeURIComponent(tableIdOrName)}`;
+    const response = await this.fetchWithRetry(url, {
+      method: 'PATCH',
+      headers: this.getHeaders(),
+      body: JSON.stringify(updateConfig),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Failed to update table '${tableIdOrName}' (${response.status}): ${errorText}`
+      );
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * List all webhooks for a base
+   */
+  async listWebhooks(baseId: string): Promise<any> {
+    const url = `${this.baseUrl}/bases/${baseId}/webhooks`;
+    const response = await this.fetchWithRetry(url, {
+      method: 'GET',
+      headers: this.getHeaders(),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Failed to list webhooks for base ${baseId} (${response.status}): ${errorText}`
+      );
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * Create a webhook for a base
+   */
+  async createWebhook(
+    baseId: string,
+    notificationUrl: string,
+    specification: any
+  ): Promise<any> {
+    const url = `${this.baseUrl}/bases/${baseId}/webhooks`;
+    const payload = {
+      notificationUrl,
+      specification: specification || {
+        options: {
+          filters: {
+            dataPersistence: { enabled: true },
+            fromSources: ['client', 'publicApi', 'formSubmission', 'automation'],
+          },
+        },
+      },
+    };
+
+    const response = await this.fetchWithRetry(url, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Failed to create webhook for base ${baseId} (${response.status}): ${errorText}`
+      );
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * Delete a webhook by ID
+   */
+  async deleteWebhook(baseId: string, webhookId: string): Promise<void> {
+    const url = `${this.baseUrl}/bases/${baseId}/webhooks/${webhookId}`;
+    const response = await this.fetchWithRetry(url, {
+      method: 'DELETE',
+      headers: this.getHeaders(),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Failed to delete webhook ${webhookId} (${response.status}): ${errorText}`
+      );
+    }
+  }
+
+  /**
+   * Get payloads for a webhook
+   */
+  async getWebhookPayloads(
+    baseId: string,
+    webhookId: string,
+    cursor?: number
+  ): Promise<any> {
+    const query = cursor ? `?cursor=${cursor}` : '';
+    const url = `${this.baseUrl}/bases/${baseId}/webhooks/${webhookId}/payloads${query}`;
+    const response = await this.fetchWithRetry(url, {
+      method: 'GET',
+      headers: this.getHeaders(),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Failed to get payloads for webhook ${webhookId} (${response.status}): ${errorText}`
+      );
+    }
+
+    return await response.json();
+  }
 }
+

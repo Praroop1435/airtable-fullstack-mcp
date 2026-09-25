@@ -17,6 +17,7 @@ import { AirtableApiClient } from './client/airtable_api.js';
 import { BrowserCdpClient } from './client/browser_cdp.js';
 import { registerSchemaTools } from './tools/schema_tools.js';
 import { registerDataTools } from './tools/data_tools.js';
+import { registerAutomationTools } from './tools/automation_tools.js';
 import { registerInterfaceTools } from './tools/interface_tools.js';
 import { registerKanbanTools } from './tools/kanban_tools.js';
 import { registerPermissionTools } from './tools/permission_tools.js';
@@ -24,17 +25,18 @@ import { registerPermissionTools } from './tools/permission_tools.js';
 async function main() {
   const server = new McpServer({
     name: 'airtable-fullstack-mcp',
-    version: '1.0.0',
+    version: '1.1.0',
     description:
-      'Dual-engine Airtable MCP server combining REST/Metadata API schema and record operations with Chrome CDP browser automation for Interface Designer.',
+      'Dual-engine Airtable MCP server combining REST/Metadata API schema, record CRUD, automations & webhooks with Chrome CDP browser automation for Interface Designer.',
   });
 
   const apiClient = new AirtableApiClient();
   const cdpClient = new BrowserCdpClient();
 
-  // Register all dual-engine tools
+  // Register all dual-engine tools (14 total)
   registerSchemaTools(server, apiClient);
   registerDataTools(server, apiClient);
+  registerAutomationTools(server, apiClient);
   registerInterfaceTools(server, cdpClient);
   registerKanbanTools(server, cdpClient);
   registerPermissionTools(server, cdpClient);

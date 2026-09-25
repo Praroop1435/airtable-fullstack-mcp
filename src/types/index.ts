@@ -142,3 +142,94 @@ export interface InterfaceRebrandArgs {
   sidebar_bundle_name?: string;
   cdp_port?: number;
 }
+
+export type AirtableRecordAction =
+  | 'get'
+  | 'update'
+  | 'delete'
+  | 'batch_delete';
+
+export interface AirtableManageRecordsArgs {
+  base_id: string;
+  table_name_or_id: string;
+  action: AirtableRecordAction;
+  record_id?: string;
+  record_ids?: string[];
+  fields?: Record<string, unknown>;
+  typecast?: boolean;
+}
+
+export type AirtableSchemaAction =
+  | 'create_field'
+  | 'update_field'
+  | 'update_table';
+
+export interface AirtableModifySchemaArgs {
+  base_id: string;
+  table_id_or_name: string;
+  action: AirtableSchemaAction;
+  field_config?: AirtableFieldConfig;
+  field_id?: string;
+  field_update?: {
+    name?: string;
+    description?: string;
+  };
+  table_update?: {
+    name?: string;
+    description?: string;
+  };
+}
+
+export type AirtableWebhookAction =
+  | 'create'
+  | 'list'
+  | 'delete'
+  | 'payloads';
+
+export interface AirtableWebhookSpecification {
+  options: {
+    filters: {
+      dataPersistence?: {
+        enabled: boolean;
+      };
+      fromSources?: string[];
+      source?: 'client' | 'publicApi' | 'formSubmission' | 'automation' | 'sync';
+      watchDataInTables?: string[];
+    };
+    includes?: {
+      includeCellValuesInFieldIds?: 'all' | string[];
+      includePreviousCellValues?: boolean;
+      includePreviousFieldDefinitions?: boolean;
+    };
+  };
+}
+
+export interface AirtableManageWebhookArgs {
+  base_id: string;
+  action: AirtableWebhookAction;
+  notification_url?: string;
+  specification?: AirtableWebhookSpecification;
+  webhook_id?: string;
+  cursor?: number;
+}
+
+export type AutomationScriptTemplate =
+  | 'tally_fillout_mapper'
+  | 'stripe_paypal_reconciliation'
+  | 'unique_id_generator'
+  | 'deduplication_sync'
+  | 'custom';
+
+export interface AirtableAutomationScriptArgs {
+  template: AutomationScriptTemplate;
+  table_name: string;
+  field_mappings?: Record<string, string>;
+  options?: {
+    id_prefix?: string;
+    unique_field?: string;
+    amount_field?: string;
+    status_field?: string;
+    custom_logic?: string;
+  };
+}
+

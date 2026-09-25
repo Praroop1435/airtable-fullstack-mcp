@@ -1,5 +1,10 @@
 /**
- * MCP Tools: Field Permissions, Detail Sheets, and Publishing
+ * MCP Tools: Field Permissions, Detail Sheets & Interface Publishing
+ *
+ * Implements:
+ * 1. airtable_set_field_permissions: Column-level inline edit locking (Edit this column inline = OFF)
+ * 2. airtable_configure_detail_sheet: Side-sheet record detail card configuration and field switches
+ * 3. airtable_publish_interface: Finalizing and publishing draft interfaces
  */
 
 import { z } from 'zod';
@@ -10,28 +15,48 @@ export function registerPermissionTools(
   server: McpServer,
   cdpClient: BrowserCdpClient
 ) {
-  // Tool 8: airtable_set_field_permissions
+  // Tool: airtable_set_field_permissions
   server.tool(
     'airtable_set_field_permissions',
-    'Sets column-level inline editing permissions on Grid and Review Queue interfaces. Locks permanent IDs and ingest fields while keeping decision gates editable.',
+    `Sets column-level inline editing permissions on Grid and Record Review interfaces by toggling "Edit this column inline" ON or OFF via Chrome CDP browser automation.
+
+### When to Use
+- When locking permanent identifiers (e.g. ID, Receipt Number, Stripe Charge ID) so operational users cannot accidentally edit them.
+- When protecting raw intake submissions or financial calculations from tampering.
+- When keeping decision gates (e.g. Stage dropdown, Verification Checkbox, Review Notes) editable while keeping all other columns read-only.
+
+### When NOT to Use
+- Do NOT use this tool for Kanban front-of-card badges. Use 'airtable_configure_kanban' instead.
+- Do NOT use this tool to configure side-sheet popup field editability. Use 'airtable_configure_detail_sheet' instead.
+
+### Operational Disclosures
+- **Prerequisites**: Chrome running with '--remote-debugging-port=9223' with an open Interface Designer Grid or Review Queue page.
+- **Side Effects**: Selects table column headers and toggles the inline editing switch in the right-hand properties sidebar.
+- **Persistence**: Saved to interface draft; published live using 'airtable_publish_interface'.`,
     {
-      base_id: z.string().describe('Airtable Base ID (starts with app...)'),
+      base_id: z
+        .string()
+        .describe('Airtable Base ID (starts with app, e.g. appoorUuG6wgx8dJ1)'),
       page_id: z
         .string()
         .optional()
-        .describe('Interface Page ID (optional if already on page)'),
+        .describe('Interface Page ID (optional if already on the target page)'),
       locked_columns: z
         .array(z.string())
         .optional()
-        .describe('Column names to LOCK from inline editing (Edit this column inline = OFF)'),
+        .describe(
+          'Column names to LOCK from inline editing (sets "Edit this column inline" = OFF), e.g. ["Merchant ID", "Monthly SaaS Fee"]'
+        ),
       editable_columns: z
         .array(z.string())
         .optional()
-        .describe('Column names to ALLOW inline editing (Edit this column inline = ON)'),
+        .describe(
+          'Column names to ALLOW inline editing (sets "Edit this column inline" = ON), e.g. ["Stage", "Reviewer Notes"]'
+        ),
       cdp_port: z
         .number()
         .optional()
-        .describe('Chrome DevTools Protocol port (default 9223)'),
+        .describe('Chrome DevTools Protocol port (default: 9223)'),
     },
     async (args) => {
       try {
@@ -95,32 +120,48 @@ export function registerPermissionTools(
     }
   );
 
-  // Tool 9: airtable_configure_detail_sheet
+  // Tool: airtable_configure_detail_sheet
   server.tool(
     'airtable_configure_detail_sheet',
-    'Configures the opening record detail side-sheet: enables detail card clicks and toggles field-level lock switches.',
+    `Configures the expandable record detail side-sheet: enables record click-to-open and toggles field-level lock switches within the detail view via Chrome CDP browser automation.
+
+### When to Use
+- When setting up the opening detail card that pops out when an operational user clicks a row or Kanban card.
+- When locking audit fields, billing totals, and created dates inside the side-sheet while allowing notes or stage toggles.
+- When setting the primary header title field of the side-sheet.
+
+### When NOT to Use
+- Do NOT use this tool for high-density table column inline edit permissions. Use 'airtable_set_field_permissions' instead.
+- Do NOT use this tool to publish interface draft changes. Use 'airtable_publish_interface' instead.
+
+### Operational Disclosures
+- **Prerequisites**: Chrome running with '--remote-debugging-port=9223'.
+- **Side Effects**: Clicks into the side-sheet configuration pane and adjusts record detail layout switches.
+- **Persistence**: Saved to interface draft; published live using 'airtable_publish_interface'.`,
     {
-      base_id: z.string().describe('Airtable Base ID (starts with app...)'),
+      base_id: z
+        .string()
+        .describe('Airtable Base ID (starts with app, e.g. appoorUuG6wgx8dJ1)'),
       page_id: z
         .string()
         .optional()
-        .describe('Interface Page ID (optional if already on page)'),
+        .describe('Interface Page ID (optional if already on the target page)'),
       title_field: z
         .string()
         .optional()
-        .describe('Field to display as main header of the side-sheet'),
+        .describe('Field name to use as the hero title on the detail card (e.g. "Merchant Name")'),
       locked_fields: z
         .array(z.string())
         .optional()
-        .describe('Fields inside the detail side-sheet to lock (Allow inline editing = OFF)'),
+        .describe('Field names to lock from editing within the side-sheet'),
       editable_fields: z
         .array(z.string())
         .optional()
-        .describe('Fields inside the detail side-sheet to allow editing (Allow inline editing = ON)'),
+        .describe('Field names to allow editing within the side-sheet'),
       cdp_port: z
         .number()
         .optional()
-        .describe('Chrome DevTools Protocol port (default 9223)'),
+        .describe('Chrome DevTools Protocol port (default: 9223)'),
     },
     async (args) => {
       try {
@@ -131,7 +172,13 @@ export function registerPermissionTools(
 
         await cdpClient.ensureEditMode(page, args.base_id, args.page_id);
 
-        const result = await cdpClient.configureDetailSheet(page, args);
+        const result = await cdpClient.configureDetailSheet(page, {
+          base_id: args.base_id,
+          page_id: args.page_id,
+          title_field: args.title_field,
+          locked_fields: args.locked_fields,
+          editable_fields: args.editable_fields,
+        });
 
         return {
           content: [
@@ -139,11 +186,14 @@ export function registerPermissionTools(
               type: 'text' as const,
               text: JSON.stringify(
                 {
-                  success: true,
+                  success: result.success,
                   base_id: args.base_id,
-                  detailSideSheetEnabled: true,
-                  fieldsLockedCount: result.lockedCount,
-                  fieldsEditableCount: result.editableCount,
+                  detailCardConfigured: true,
+                  titleField: args.title_field || null,
+                  lockedCount: result.lockedCount,
+                  editableCount: result.editableCount,
+                  lockedFields: args.locked_fields || [],
+                  editableFields: args.editable_fields || [],
                 },
                 null,
                 2
@@ -165,16 +215,31 @@ export function registerPermissionTools(
     }
   );
 
-  // Tool 10: airtable_publish_interface
+  // Tool: airtable_publish_interface
   server.tool(
     'airtable_publish_interface',
-    'Finalizes and publishes all Interface Designer draft changes to production, confirming any confirmation modals.',
+    `Finalizes and publishes all Interface Designer draft changes to production, confirming any multi-page confirmation modals via Chrome CDP browser automation.
+
+### When to Use
+- When you have finished building or modifying interface pages, Kanbans, and permissions, and want live users/clients to see the updates.
+- As the final step in any automated interface creation workflow.
+
+### When NOT to Use
+- Do NOT use this tool if you are still making edits or adjusting layout elements in draft mode.
+- Do NOT use this tool for base schema changes (schema changes are live immediately without publishing).
+
+### Operational Disclosures
+- **Prerequisites**: Chrome running with '--remote-debugging-port=9223' on the target base.
+- **Side Effects**: Clicks the blue 'Publish' button in the interface header and clicks confirmation dialogs.
+- **Persistence**: Publishes all draft changes to all users with interface access.`,
     {
-      base_id: z.string().describe('Airtable Base ID (starts with app...)'),
+      base_id: z
+        .string()
+        .describe('Airtable Base ID (starts with app, e.g. appoorUuG6wgx8dJ1)'),
       cdp_port: z
         .number()
         .optional()
-        .describe('Chrome DevTools Protocol port (default 9223)'),
+        .describe('Chrome DevTools Protocol port (default: 9223)'),
     },
     async (args) => {
       try {

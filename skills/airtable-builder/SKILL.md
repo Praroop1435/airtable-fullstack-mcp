@@ -137,6 +137,30 @@ Finalize all changes with `airtable_publish_interface`:
 }
 ```
 
+### Step 6: Connect Real-Time External Webhooks
+Use `airtable_manage_webhook` to register webhooks for external tools (Tally, Stripe, Make, Zapier):
+```json
+{
+  "base_id": "appXXXXXXXXXXXXXX",
+  "action": "create",
+  "notification_url": "https://api.yourdomain.com/webhooks/airtable"
+}
+```
+
+### Step 7: Generate In-Base Automation Scripts
+Generate verified JavaScript for Airtable's "Run a script" action with `airtable_generate_automation_script`:
+```json
+{
+  "template": "stripe_paypal_reconciliation",
+  "table_name": "Merchants Master",
+  "options": {
+    "unique_field": "Contact Email",
+    "amount_field": "Monthly ARR",
+    "status_field": "Stage"
+  }
+}
+```
+
 ---
 
 ## 4. Claude Desktop & Agent Configuration

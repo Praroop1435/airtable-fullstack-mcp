@@ -1,7 +1,7 @@
 {
   "name": "airtable-fullstack-mcp",
-  "version": "1.0.0",
-  "description": "Full-Stack Airtable MCP Server: Unified REST/Metadata API and Browser CDP Interface Designer Automation",
+  "version": "1.1.0",
+  "description": "Full-Stack Airtable MCP Server: Unified REST/Metadata API, Webhooks, In-Base Automations, and Browser CDP Interface Designer Automation",
   "main": "dist/index.js",
   "bin": {
     "airtable-fullstack-mcp": "dist/index.js"
